@@ -7,8 +7,9 @@
 .env
 .env.local
 
-# Native host manifest (machine-specific)
+# Native host manifest and config (machine-specific)
 native-host/com.chatgpt.bridge.json
+native-host/config.json
 
 # IDE
 .vscode/

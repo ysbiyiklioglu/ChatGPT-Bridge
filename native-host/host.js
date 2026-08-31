@@ -6,8 +6,21 @@ const fs = require('fs');
 
 let serverProcess = null;
 let serverPid = null;
-const SERVER_PATH = path.join(__dirname, '..', 'server', 'server.cjs');
-const PID_FILE = path.join(__dirname, '..', 'server', 'server.pid');
+
+// Server path: check config file first, then fall back to relative path
+function getServerPath() {
+  const configPath = path.join(__dirname, 'config.json');
+  try {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    if (config.serverPath && fs.existsSync(config.serverPath)) {
+      return config.serverPath;
+    }
+  } catch {}
+  return path.join(__dirname, '..', 'server', 'server.cjs');
+}
+
+const SERVER_PATH = getServerPath();
+const PID_FILE = path.join(path.dirname(SERVER_PATH), 'server.pid');
 
 function savePid(pid) {
   try { fs.writeFileSync(PID_FILE, String(pid), 'utf8'); } catch {}

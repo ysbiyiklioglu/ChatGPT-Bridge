@@ -25,7 +25,7 @@ echo Host dizini: %HOST_DIR%
 echo.
 
 :: Generate manifest with correct paths
-echo [1/4] Manifest olusturuluyor...
+echo [1/6] Manifest olusturuluyor...
 > "%HOST_MANIFEST%" (
     echo {
     echo   "name": "%HOST_NAME%",
@@ -40,15 +40,39 @@ echo [1/4] Manifest olusturuluyor...
 echo       Manifest olusturuldu: %HOST_MANIFEST%
 
 :: Generate host.bat with correct Node.js path
-echo [2/4] host.bat olusturuluyor...
+echo [2/6] host.bat olusturuluyor...
 > "%HOST_DIR%host.bat" (
     echo @echo off
     echo "%NODE_PATH%" "%~dp0host.js"
 )
 echo       host.bat olusturuldu
 
+:: Detect server location
+echo [3/6] Server konumu algilaniyor...
+set SERVER_DIR=%HOST_DIR%..\server
+if exist "%SERVER_DIR%\server.cjs" (
+    echo       Server bulundu: %SERVER_DIR%\server.cjs
+) else (
+    set SERVER_DIR=%HOST_DIR%..\..\server
+    if exist "%SERVER_DIR%\server.cjs" (
+        echo       Server bulundu: %SERVER_DIR%\server.cjs
+    ) else (
+        echo       Server bulunamadi, varsayilan kullaniliyor.
+        set SERVER_DIR=%HOST_DIR%..\server
+    )
+)
+
+:: Generate config.json
+echo [4/6] config.json olusturuluyor...
+> "%HOST_DIR%config.json" (
+    echo {
+    echo   "serverPath": "%SERVER_DIR%\server.cjs"
+    echo }
+)
+echo       config.json olusturuldu: %HOST_DIR%config.json
+
 :: Register for Chrome - HKCU
-echo [3/4] Chrome icin kayit yapiliyor...
+echo [5/6] Chrome icin kayit yapiliyor...
 reg add "HKCU\SOFTWARE\Google\Chrome\NativeMessagingHosts\%HOST_NAME%" /ve /t REG_SZ /d "%HOST_MANIFEST%" /f >nul 2>&1
 if %errorLevel% equ 0 (
     echo       Chrome basariyla kaydedildi
@@ -57,7 +81,7 @@ if %errorLevel% equ 0 (
 )
 
 :: Register for Edge - HKCU
-echo [4/4] Edge icin kayit yapiliyor...
+echo [6/6] Edge icin kayit yapiliyor...
 reg add "HKCU\SOFTWARE\Microsoft\Edge\NativeMessagingHosts\%HOST_NAME%" /ve /t REG_SZ /d "%HOST_MANIFEST%" /f >nul 2>&1
 if %errorLevel% equ 0 (
     echo       Edge basariyla kaydedildi
