@@ -369,7 +369,6 @@ function connectWebSocket() {
 
   ws.onclose = () => {
     console.log('[BG] WebSocket closed');
-    userExplicitConnect = false;
     ws = null;
     chrome.storage.local.set({ wsStatus: 'disconnected' });
     if (keepAliveTimer) { clearInterval(keepAliveTimer); keepAliveTimer = null; }
