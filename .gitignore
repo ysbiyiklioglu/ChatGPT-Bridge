@@ -1,0 +1,11 @@
+node_modules/
+server/server.log
+server/server.err
+server/once-err.log
+server/once-out.log
+server/build/
+downloads/
+native-host/com.chatgpt.bridge.json
+*.pid
+.env
+.env.local

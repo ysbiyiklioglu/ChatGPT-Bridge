@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root {
+      --bg-base: #0c0c11;
+      --bg-surface: #14141a;
+      --bg-elevated: #1b1b24;
+      --bg-input: #111117;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-default: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(34, 197, 94, 0.4);
+
+      --text-primary: #f0f0f2;
+      --text-secondary: #94949e;
+      --text-muted: #5c5c66;
+
+      --accent: #22c55e;
+      --accent-dim: rgba(34, 197, 94, 0.12);
+      --accent-glow: rgba(34, 197, 94, 0.25);
+
+      --danger: #ef4444;
+      --danger-dim: rgba(239, 68, 68, 0.10);
+      --danger-hover: #dc2626;
+
+      --warning: #f59e0b;
+
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.35);
+      --shadow-glow: 0 0 12px rgba(34, 197, 94, 0.08);
+
+      --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 340px;
+      min-height: 200px;
+      padding: 0;
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ─── Header ─── */
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .header-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: white;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .header-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    /* ─── Status Section ─── */
+
+    .section {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .status-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+    }
+
+    .status-row + .status-row {
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .status-label {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    /* ─── Status Dots ─── */
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      position: relative;
+      flex-shrink: 0;
+      border: 2px solid var(--text-muted);
+      background: transparent;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .status-dot.connected {
+      background: #22c55e;
+      border-color: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    }
+
+    .status-dot.connected::after {
+      background: #22c55e;
+      animation: pulse-ring 2s ease-out infinite;
+    }
+
+    .status-dot.disconnected {
+      background: #ef4444;
+      border-color: #ef4444;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.35);
+    }
+
+    .status-dot.connecting {
+      background: #f59e0b;
+      border-color: #f59e0b;
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.35);
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% { opacity: 0.6; transform: scale(1); }
+      70% { opacity: 0; transform: scale(2.5); }
+      100% { opacity: 0; transform: scale(2.5); }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .status-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
+    /* Text coloring via adjacent sibling — high specificity */
+    .status-indicator .status-dot.connected + .status-text {
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    .status-indicator .status-dot.disconnected + .status-text {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .status-indicator .status-dot.connecting + .status-text {
+      color: #f59e0b;
+      font-weight: 600;
+    }
+
+    /* ─── Input ─── */
+
+    .input-section {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .input-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 11.5px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .input-wrapper input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    /* ─── Buttons ─── */
+
+    .actions {
+      padding: 14px 18px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .btn {
+      flex: 1;
+      height: 34px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition:
+        background var(--transition),
+        opacity var(--transition),
+        transform 60ms ease,
+        box-shadow var(--transition);
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:hover {
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn:focus-visible {
+      box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent);
+    }
+
+    .btn-connect {
+      background: var(--accent);
+      color: #052e16;
+    }
+
+    .btn-connect:hover:not(:disabled) {
+      background: #16a34a;
+      box-shadow: 0 1px 6px rgba(34, 197, 94, 0.25);
+    }
+
+    .btn-disconnect {
+      background: var(--danger-dim);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .btn-disconnect:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-server-start {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-server-start:hover:not(:disabled) {
+      background: #2563eb;
+      box-shadow: 0 1px 6px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn-server-stop {
+      background: var(--danger-dim);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .btn-server-stop:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ─── Log Area ─── */
+
+    .log-section {
+      padding: 14px 18px 16px;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .log-count {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .log {
+      max-height: 130px;
+      min-height: 36px;
+      overflow-y: auto;
+      font-size: 11px;
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 6px 0;
+      scroll-behavior: smooth;
+    }
+
+    .log:empty::before {
+      content: 'Kayit yok';
+      display: block;
+      padding: 8px 12px;
+      font-style: italic;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 11px;
+    }
+
+    /* ─── Custom Scrollbar ─── */
+
+    .log::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .log::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .log::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+    }
+
+    .log::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .log-entry {
+      padding: 3px 12px;
+      line-height: 1.5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background var(--transition);
+    }
+
+    .log-entry:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .log-entry + .log-entry {
+      border-top: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .log-entry.success {
+      color: var(--accent);
+    }
+
+    .log-entry.error {
+      color: #f87171;
+    }
+
+    /* ─── Firefox scrollbar ─── */
+
+    .log {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+    }
+
+    /* ─── Subtle bottom fade on log ─── */
+
+    .log-container {
+      position: relative;
+    }
+
+    .log-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 18px;
+      background: linear-gradient(to top, var(--bg-base), transparent);
+      pointer-events: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .log-fade.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+      </svg>
+    </div>
+    <div class="header-text">
+      <div class="header-title">ChatGPT Bridge</div>
+      <div class="header-subtitle">WebSocket Baglanti Köprüsü</div>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="section">
+    <div class="section-label">Durum</div>
+    <div class="status-card">
+      <div class="status-row">
+        <span class="status-label">Sunucu</span>
+        <span class="status-indicator">
+          <span class="status-dot" id="serverDot"></span>
+          <span class="status-text" id="serverStatus">-</span>
+        </span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">WebSocket</span>
+        <span class="status-indicator">
+          <span class="status-dot" id="wsDot"></span>
+          <span class="status-text" id="wsStatus">-</span>
+        </span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">ChatGPT</span>
+        <span class="status-indicator">
+          <span class="status-dot" id="chatDot"></span>
+          <span class="status-text" id="chatStatus">-</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Server Control -->
+  <div class="actions">
+    <button class="btn btn-server-start" id="btnServerStart">Sunucuyu Baslat</button>
+    <button class="btn btn-server-stop" id="btnServerStop" disabled>Dur</button>
+  </div>
+
+  <!-- WebSocket URL -->
+  <div class="input-section">
+    <label class="input-label" for="wsUrl">WebSocket Adresi</label>
+    <div class="input-wrapper">
+      <input type="text" id="wsUrl" value="ws://localhost:3000" spellcheck="false" autocomplete="off" />
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="actions">
+    <button class="btn btn-connect" id="btnConnect">Baglan</button>
+    <button class="btn btn-disconnect" id="btnDisconnect" disabled>Baglantiyi Kes</button>
+  </div>
+
+  <!-- Log -->
+  <div class="log-section">
+    <div class="log-header">
+      <div class="section-label" style="margin-bottom: 0;">Olay Kayitlari</div>
+    </div>
+    <div class="log-container">
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
