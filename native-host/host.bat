@@ -1,2 +1,2 @@
 @echo off
-node "%~dp0host.js"
+"C:\Program Files\nodejs\node.exe" "C:\Users\ynbiy\chatgpt-bridge\ChatGPT Bridge\native-host\host.js"
