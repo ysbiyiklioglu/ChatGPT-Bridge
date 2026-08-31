@@ -68,7 +68,9 @@ Or use the **Start Server** button in the extension popup.
 1. Go to [chatgpt.com](https://chatgpt.com)
 2. Click **Connect** in the extension popup
 
-## MCP Configuration
+## MCP Configuration (opencode)
+
+This example is for [opencode](https://opencode.ai). Other MCP clients may use different config formats — check your client's documentation.
 
 Add to your `opencode.json`:
 
