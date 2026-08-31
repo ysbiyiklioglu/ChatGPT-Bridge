@@ -1,5 +1,14 @@
 const { WebSocketServer, WebSocket } = require('ws');
 const http = require('http');
+const path = require('path');
+
+function sanitizePath(baseDir, userPath) {
+  const resolved = path.resolve(baseDir, userPath);
+  if (!resolved.startsWith(path.resolve(baseDir))) {
+    throw new Error('Gecersiz dosya yolu');
+  }
+  return resolved;
+}
 
 const MAIN_SERVER_PORT = 3000;
 const MCP_PORT = parseInt(process.env.MCP_PORT || '3001', 10);
@@ -273,13 +282,13 @@ try {
           sendJson(res, 400, { status: 'error', error: 'url required' });
           return;
         }
-        const savePath = body.savePath || ('downloads/' + (body.fileName || Date.now() + '.png'));
+        const rawPath = body.savePath || ('downloads/' + (body.fileName || Date.now() + '.png'));
+        const savePath = sanitizePath('.', rawPath);
         const r = await sendToExtension({ type: 'DOWNLOAD_IMAGE', url: body.url, savePath }, 30000);
         if (r) {
           const parsed = typeof r === 'string' ? JSON.parse(r) : r;
           if (parsed.data) {
             const fs = require('fs');
-            const path = require('path');
             const dir = path.dirname(savePath);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             const buffer = Buffer.from(parsed.data, 'base64');
@@ -604,7 +613,8 @@ async function handleMcpRequest(request) {
         }
         case 'chatgpt_download': {
           if (!args.url) throw new Error('url required');
-          const savePath = args.savePath || ('downloads/' + (args.fileName || Date.now() + '.png'));
+          const rawPath = args.savePath || ('downloads/' + (args.fileName || Date.now() + '.png'));
+          const savePath = sanitizePath('.', rawPath);
           if (useHttp) {
             result = await sendToExistingServer({ url: args.url, savePath, fileName: args.fileName }, 30000, '/download');
           } else {
@@ -613,7 +623,6 @@ async function handleMcpRequest(request) {
               const parsed = typeof r === 'string' ? JSON.parse(r) : r;
               if (parsed.data) {
                 const fs = require('fs');
-                const path = require('path');
                 const dir = path.dirname(savePath);
                 if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
                 const buffer = Buffer.from(parsed.data, 'base64');

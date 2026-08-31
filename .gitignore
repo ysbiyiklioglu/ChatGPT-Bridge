@@ -1,11 +1,23 @@
-node_modules/
-server/server.log
-server/server.err
-server/once-err.log
-server/once-out.log
-server/build/
-downloads/
-native-host/com.chatgpt.bridge.json
+**/node_modules/
+**/build/
+**/downloads/
+*.log
 *.pid
+*.map
 .env
 .env.local
+
+# Native host manifest (machine-specific)
+native-host/com.chatgpt.bridge.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

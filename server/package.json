@@ -1,13 +1,17 @@
 {
   "name": "chatgpt-bridge-server",
-  "version": "1.0.0",
+  "version": "1.2.0",
+  "description": "MCP server bridging ChatGPT web interface to CLI agents",
+  "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node build/index.js",
-    "bridge": "node server.cjs",
-    "test": "tsx src/index.ts"
+    "bridge": "node server.cjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
