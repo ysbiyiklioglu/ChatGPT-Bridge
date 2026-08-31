@@ -4,6 +4,7 @@ setlocal
 set HOST_NAME=com.chatgpt.bridge
 set HOST_DIR=%~dp0
 set HOST_MANIFEST=%HOST_DIR%%HOST_NAME%.json
+set HOST_DIR_JSON=%HOST_DIR:\=/%
 
 echo ========================================
 echo ChatGPT Bridge - Native Host Kurulumu
@@ -30,7 +31,7 @@ echo [1/6] Manifest olusturuluyor...
     echo {
     echo   "name": "%HOST_NAME%",
     echo   "description": "ChatGPT Bridge Server Host",
-    echo   "path": "%HOST_DIR%host.bat",
+    echo   "path": "%HOST_DIR_JSON%host.bat",
     echo   "type": "stdio",
     echo   "allowed_origins": [
     echo     "chrome-extension://PLACEHOLDER_EXTENSION_ID/"
@@ -61,12 +62,13 @@ if exist "%SERVER_DIR%\server.cjs" (
         set SERVER_DIR=%HOST_DIR%..\server
     )
 )
+set SERVER_PATH_JSON=%SERVER_DIR:\=/%/server.cjs
 
 :: Generate config.json
 echo [4/6] config.json olusturuluyor...
 > "%HOST_DIR%config.json" (
     echo {
-    echo   "serverPath": "%SERVER_DIR%\server.cjs"
+    echo   "serverPath": "%SERVER_PATH_JSON%"
     echo }
 )
 echo       config.json olusturuldu: %HOST_DIR%config.json

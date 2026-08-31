@@ -113,26 +113,29 @@ function checkPort() {
 
 async function startServer() {
   const existingPid = readPid();
-  if (existingPid && isProcessRunning(existingPid)) {
-    return { status: 'already_running', pid: existingPid };
+  const portInUse = await checkPort();
+  if (portInUse) {
+    return { status: 'already_running', pid: existingPid, message: 'Port 3000 kullaniliyor, sunucu zaten calisiyor' };
   }
   removePid();
 
-  const portInUse = await checkPort();
-  if (portInUse) {
-    return { status: 'already_running_port', message: 'Port 3000 kullaniliyor, sunucu zaten calisiyor' };
+  if (!fs.existsSync(SERVER_PATH)) {
+    throw new Error('Server dosyasi bulunamadi: ' + SERVER_PATH);
   }
 
   return new Promise((resolve, reject) => {
     try {
-      serverProcess = spawn('node', [SERVER_PATH], {
+      serverProcess = spawn(process.execPath, [SERVER_PATH], {
         detached: true,
         stdio: 'ignore',
+        cwd: path.dirname(SERVER_PATH),
+        windowsHide: true,
         env: { ...process.env, WS_PORT: '3000' }
       });
 
-      serverPid = serverProcess.pid;
-      savePid(serverPid);
+      const launchedPid = serverProcess.pid;
+      serverPid = launchedPid;
+      savePid(launchedPid);
       serverProcess.unref();
 
       serverProcess.on('error', (err) => {
@@ -143,14 +146,21 @@ async function startServer() {
       });
 
       serverProcess.on('exit', (code) => {
-        serverProcess = null;
-        serverPid = null;
-        removePid();
+        if (serverPid === launchedPid) {
+          serverProcess = null;
+          serverPid = null;
+          removePid();
+        }
       });
 
-      setTimeout(() => {
-        resolve({ status: 'started', pid: serverPid });
-      }, 1500);
+      setTimeout(async () => {
+        if (await checkPort()) {
+          resolve({ status: 'started', pid: launchedPid });
+        } else {
+          removePid();
+          reject(new Error('Sunucu port 3000 uzerinde baslatilamadi'));
+        }
+      }, 800);
     } catch (e) {
       reject(new Error('Sunucu baslatilamadi: ' + e.message));
     }
